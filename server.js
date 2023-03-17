@@ -5,46 +5,52 @@ var https         = require('https');
 const {fork}      = require("child_process")
 const app         = express();
 const PORT        = 3000;
-const IP          = require('ip');
-let palyers       = [];
-let temp_json     = {};
-
+let out           = ""
 let {
     db,
     update_db,
     get_data,
-    create_db
-  }               = require("./db/init");
-const { json } = require('express');
+    create_db,
+    init_db  
+}                = require("./db/level");
 
 async function createServer(){
 
-  create_db("./games")
+  await create_db("./games")
   
   app.use(compression());
 
-  app.get('/put/:matchID/:player/:score/:warn/:penalty', async(req, res) => {
-    const ipAddress = req.header('x-forwarded-for') || req.socket.remoteAddress +":"+  IP.address() 
-    update_db(req.params)
-    palyers.push(req.params.player)
-    res.send(req.params);
+  app.get("/",(req,res)=>{
+    res.sendFile(__dirname+"/score_board/public/landing.html")
+  })
+
+  app.get('/init/:matchID/:player1/:player2',async(req, res)=>{
+      let code = await init_db(req.params);
+          out  = code==200 ? "sucess" : "failed"
+      res.json({"status":"init " + out});
+  })
+
+  app.get('/put/:matchID/:judgeID/:player/:score/:warn/:penalty', async(req, res) => {
+    let code = await update_db(req.params)
+    console.log(code,req.params)
+        out = code==200 ? "sucess" : "failed "
+    res.json({"status":"update " + out});
   })
   
-  app.get('/get/:matchID',(req,res) => {
+  app.get('/get/:matchID',async(req,res) => {
     console.log('id : ',req.params)
-    palyers.forEach(async(n)=>{
-      let data = await get_data(req.params.matchID+n);
-      temp_json[n] = data
-    })
-    res.json(temp_json)
+    const data=await get_data(req.params.matchID)
+    out = JSON.stringify(data).length!=0 ? data : {"err":"no matches found"}
+    res.json(out)
   })
 
   app.listen(PORT,()=>{
       console.log("App started at port",PORT)
   })
-  
-  http.globalAgent.maxSockets  = Infinity; //speed vroom
-  https.globalAgent.maxSockets = Infinity; //speed vroom
+
 }
 
 createServer()
+
+http.globalAgent.maxSockets  = Infinity; //speed vroom
+https.globalAgent.maxSockets = Infinity; //speed vroom

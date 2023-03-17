@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Score Board</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <div>
+    <header>
+      <h1 class="text-center">Scoreboard</h1>
+    </header>
+    <div class="scorecontainer">
+      <div class="btncontainer">
+        <h2 class="player" id="player1"></h2>
+        <div class="btn" id="team1"></div>
+        <div class="scorebtn warn" id="player1-warn"></div>
+        <div class="scorebtn penalty" id="player1-penalty"></div>
+      </div>
+      <div class="btncontainer">
+        <h2 class="player" id="player2"></h2>
+        <div class="btn" id="team2"></div>
+        <div class="scorebtn warn" id="player2-warn"></div>
+        <div class="scorebtn penalty" id="player2-penalty"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    let arr        = [(p)=>'player'+p,(p)=>'team'+p,(p)=>`player${p}-warn`,(p)=>`player${p}-penalty`]
+    let data_0 = "<%= data_0 %>".split(",")
+    let data_1 = "<%= data_1 %>".split(",")
+    let d      =  [data_0,data_1]
+    d.forEach((n,i)=>{
+        n.forEach((m,j)=>{
+          document.getElementById(arr[j](i+1)).innerHTML = m
+        })
+      })
+    setInterval(()=>{
+      window.location.reload()
+    },100)
+  </script>
+</body>
+</html>
